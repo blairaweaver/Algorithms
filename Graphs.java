@@ -60,19 +60,53 @@ public class Graphs {
             }
         }
 
-//        public void setPrevious(Edge previous) {
-//            this.previous = previous;
-//        }
-//
-//        public void setNext(Edge next) {
-//            this.next = next;
-//        }
     }
 
     private class Cluster {
-        ArrayList<Integer> verts;
-        ArrayList<Edge> outEdges;
-        ???/
+        private ArrayList<Integer> verts;
+//        private ArrayList<Edge> outEdges;
+        private PriorityQueue<Edge> outEdges;
+        private int numVerts = 0;
+
+        public Cluster (int vert) {
+            addVert(vert);
+            addEdge(vert);
+//            cleanEdges();
+            numVerts++;
+        }
+        public void addVert(int vert) {
+            verts.add(vert);
+        }
+
+        private void addEdge(int vert) {
+            for (int i = 0; i < adjList[i].size(); i++) {
+                if (!outEdges.contains(adjList[i].get(i))) {
+                    outEdges.add(adjList[i].get(i));
+                }
+            }
+        }
+
+        public Edge minEdge() {
+            return outEdges.poll();
+        }
+
+//        function to remove any edges that haven't been used, but that connect two vert in same cluster
+//        private void cleanEdges() {
+//            if (numVerts == 1) {
+//                return;
+//            }
+//            else {
+//                for (int i = 0; i < outEdges.size(); i++) {
+//                    if (isCycle(i)) {
+//                        outEdges.remove(i);
+//                    }
+//                }
+//            }
+//        }
+
+//        public boolean isCycle(int index) {
+//            return (verts.indexOf(outEdges.get(index).getDest()) != -1 && verts.indexOf(outEdges.get(index).getOrigin()) != -1);
+//        }
     }
 
     private LinkedList<Edge> [] adjList;
@@ -84,12 +118,14 @@ public class Graphs {
         for (int i = 0; i < verticies; i++) {
             adjList[i] = new LinkedList<>();
         }
+        this.verticies = verticies;
     }
 
     public void addEdge(int origin, int dest, int weight) {
         Edge e = new Edge(origin, dest, weight);
         adjList[origin].add(e);
         adjList[dest].add(e);
+        edges++;
     }
 
     public LinkedList<Edge> Brovuka() {
@@ -98,16 +134,15 @@ public class Graphs {
         LinkedList<Edge> span = new LinkedList<>();
 
 //        keep track of clusters (subtrees) and initialize each vert to be a cluster
-        ArrayList<ArrayList<Integer>> clusters = new ArrayList<>(adjList.length);
-        for (int i = 0; i < adjList.length; i ++) {
-            ArrayList<Integer> temp = new ArrayList<>();
-            temp.add(i);
-            clusters.add(i, temp);
+        ArrayList<Cluster> clusters = new ArrayList<>(adjList.length);
+        for (int i = 0; i < adjList.length; i++) {
+            clusters.add(new Cluster(i));
         }
+
 //        runs until there is one cluster
         while (clusters.size() > 1) {
             for (int i = 0; i < clusters.size(); i++) {
-                for (int j = 0; j < clusters.get(i).size(); j++)
+                Edge e = clusters.get(i).minEdge();
 
             }
         }
