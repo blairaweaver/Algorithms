@@ -1,0 +1,14 @@
+Array
+    1 index for each vertex
+    Store a list of edges from that vertex?
+
+Boruvka
+    have clusters (initially each cluster is a single vertex)
+    Look at each cluster
+        Look at each edge coming from that cluster that isn't connected to itself
+    Do this while there is more than one cluster
+
+create cluster object?
+    keep track of vert in cluster and keep track of edges not pointing to itself?
+
+create boolean function to determine cycle
