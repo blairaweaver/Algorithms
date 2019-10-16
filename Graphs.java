@@ -140,9 +140,9 @@ public class Graphs {
     }
 
     public LinkedList<Edge> Brovuka() {
+
 //        span stores the edges that are in the tree
         LinkedList<Edge> span = new LinkedList<>();
-
 
 //        keep track of clusters (subtrees) and initialize each vert to be a cluster at beginning
         ArrayList<Cluster> clusters = new ArrayList<>(adjList.length);
@@ -204,8 +204,7 @@ public class Graphs {
     }
 
     public void printSpan(LinkedList<Edge> span) {
-//        currently, prints edges in order that was added to list. This function can be modified to print other
-//        information such as total weight of the MST
+//        currently, prints edges in order that was added to list. 
         for (int i = 0; i < span.size(); i++){
             Edge current = span.get(i);
             if (i == span.size() - 1) {
@@ -214,6 +213,101 @@ public class Graphs {
             else {
                 System.out.print(current.getOrigin() + "-" + current.getDest() + ", ");
             }
+        }
+    }
+
+    public void printWeight(LinkedList<Edge> span) {
+//        This method prints the total weight of the MST
+        int sum = 0;
+        for (int i = 0; i < span.size(); i++) {
+            sum += span.get(i).getWeight();
+        }
+        System.out.println("The total weight of the MST is " + sum);
+    }
+
+//    This code is adapted from my Data Structure class
+    public LinkedList<Edge> Kruskal() {
+//        span stores the edges that are in the tree
+        PriorityQueue<Edge> queue = new PriorityQueue<>();
+        LinkedList<Edge> span = new LinkedList<>();
+
+//        keep track of clusters (subtrees)
+        ArrayList<ArrayList<Integer>> clusters = new ArrayList<>(adjList.length);
+
+//        Creating and adding Edges to queue
+        for (int i = 0; i < adjList.length; i++) {
+            for (int j = 0; j < adjList[i].size(); j++) {
+                queue.add(adjList[i].get(j));
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            Edge current = queue.poll();
+//            checks if this edge should be added
+            if (toAdd(current, clusters)) {
+//                adds edge to the span and then adjust the subtrees
+                span.add(current);
+                adjustSubtrees(current, clusters);
+            }
+        }
+        return span;
+    }
+
+    private boolean toAdd(Edge x, ArrayList<ArrayList<Integer>> subTrees) {
+        int originIndex = -1, destIndex = -1;
+        for (int i =0; i < subTrees.size(); i++) {
+            if (subTrees.get(i).indexOf(x.getOrigin()) != -1) {
+                originIndex = i;
+            }
+            if (subTrees.get(i).indexOf(x.getDest()) != -1) {
+                destIndex = i;
+            }
+        }
+
+        if (originIndex == destIndex && originIndex != -1) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    private void adjustSubtrees(Edge x, ArrayList<ArrayList<Integer>> subTrees) {
+        int originIndex = -1, destIndex = -1;
+        for (int i =0; i < subTrees.size(); i++) {
+            if (subTrees.get(i).indexOf(x.getOrigin()) != -1) {
+                originIndex = i;
+            }
+            if (subTrees.get(i).indexOf(x.getDest()) != -1) {
+                destIndex = i;
+            }
+        }
+
+        if (originIndex == -1 && destIndex == -1) {
+            ArrayList<Integer> temp = new ArrayList<>();
+            temp.add(x.getOrigin());
+            temp.add(x.getDest());
+            subTrees.add(temp);
+        }
+        else if (originIndex != -1 && destIndex != -1) {
+            if (originIndex < destIndex) {
+                for (int i = 0; i < subTrees.get(destIndex).size(); i++) {
+                    subTrees.get(originIndex).add(subTrees.get(destIndex).get(i));
+                }
+                subTrees.remove(destIndex);
+            }
+            else {
+                for (int i = 0; i < subTrees.get(originIndex).size(); i++) {
+                    subTrees.get(destIndex).add(subTrees.get(originIndex).get(i));
+                }
+                subTrees.remove(originIndex);
+            }
+        }
+        else if (originIndex == -1) {
+            subTrees.get(destIndex).add(x.getOrigin());
+        }
+        else {
+            subTrees.get(originIndex).add(x.getDest());
         }
     }
 
@@ -237,7 +331,19 @@ public class Graphs {
         graph1.addEdge(3,5,14);
         graph1.addEdge(6,8,6);
 
-        graph1.printSpan(graph1.Brovuka());;
+        long start = System.currentTimeMillis();
+        LinkedList<Edge> span = graph1.Brovuka();
+        long end = System.currentTimeMillis();
+        float sec = (end - start); System.out.println(sec + " milliseconds");;
+
+        graph1.printSpan(span);
+
+        graph1.printWeight(span);
+
+        long startK = System.currentTimeMillis();
+        LinkedList<Edge> spanK = graph1.Kruskal();
+        long endK = System.currentTimeMillis();
+        float secK = (endK - startK); System.out.println(secK + " milliseconds");
 
     }
 }
