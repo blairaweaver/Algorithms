@@ -4,122 +4,6 @@ import java.util.PriorityQueue;
 
 public class Graphs {
 
-    private class Edge implements Comparable<Edge> {
-        private int origin;
-        private int dest;
-        private int weight;
-        
-
-        public Edge() {
-            origin = -1;
-            dest = -1;
-            weight = 0;
-        }
-
-        public Edge(int origin, int dest, int weight) {
-            this.origin = origin;
-            this.dest = dest;
-            this.weight = weight;
-        }
-
-        public int getOrigin() {
-            return origin;
-        }
-
-        public int getDest() {
-            return dest;
-        }
-
-        public int getWeight() {
-            return weight;
-        }
-
-        public void setOrigin(int origin) {
-            this.origin = origin;
-        }
-
-        public void setDest(int dest) {
-            this.dest = dest;
-        }
-
-        public void setWeight(int weight) {
-            this.weight = weight;
-        }
-
-        @Override
-        public int compareTo(Edge edge) {
-            if (this.getWeight() > edge.getWeight()) {
-                return 1;
-            }
-            else if (this.getWeight() < edge.getWeight()) {
-                return -1;
-            }
-            else {
-                return 0;
-            }
-        }
-
-    }
-
-    private class Cluster {
-        private ArrayList<Integer> verts;
-//        private ArrayList<Edge> outEdges;
-        private PriorityQueue<Edge> outEdges;
-        private int numVerts = 0;
-
-        public Cluster (int vert) {
-            verts = new ArrayList<>();
-            outEdges = new PriorityQueue<>();
-            addVert(vert);
-            addEdge(vert);
-            numVerts++;
-        }
-
-        public int getNumVerts() {
-            return numVerts;
-        }
-
-        public int getVert(int index) {
-            return verts.get(index);
-        }
-
-        public void addVert(int vert) {
-            verts.add(vert);
-        }
-
-        private void addEdge(int vert) {
-            for (int i = 0; i < adjList[vert].size(); i++) {
-//                checks to make sure edge isn't already in list and doesn't connect to two verts in cluster
-                if (!outEdges.contains(adjList[vert].get(i)) && !isCycle(adjList[vert].get(i))) {
-                    outEdges.add(adjList[vert].get(i));
-                }
-            }
-        }
-
-        public Edge minEdge() {
-//            will return smallest edge that isn't cycle
-            Boolean foundCan = false;
-            Edge candidate = null;
-            while (!foundCan) {
-                 candidate = outEdges.poll();
-                if (!isCycle(candidate)) {
-                    foundCan = true;
-                }
-            }
-            return candidate;
-        }
-
-//        returns if the cluster has the vert
-        public boolean hasVert(int vert) {
-            return verts.contains(vert);
-        }
-
-//      returns if edge creates cycle with cluster
-        public boolean isCycle(Edge e) {
-            return (verts.indexOf(e.getDest()) != -1 && verts.indexOf(e.getOrigin()) != -1);
-        }
-    }
-
     private LinkedList<Edge> [] adjList;
     private int vertices = 0;
     private int edges = 0;
@@ -140,14 +24,14 @@ public class Graphs {
     }
 
     public LinkedList<Edge> Brovuka() {
-
+        long startTime = System.nanoTime();
 //        span stores the edges that are in the tree
         LinkedList<Edge> span = new LinkedList<>();
 
 //        keep track of clusters (subtrees) and initialize each vert to be a cluster at beginning
         ArrayList<Cluster> clusters = new ArrayList<>(adjList.length);
         for (int i = 0; i < adjList.length; i++) {
-            clusters.add(new Cluster(i));
+            clusters.add(new Cluster(adjList, i));
         }
 
 //        runs until there is one cluster
@@ -171,10 +55,13 @@ public class Graphs {
                 span.add(temp[i]);
             }
         }
+        long endTime = System.nanoTime();
+        long timeElapsed = endTime - startTime;
+        System.out.println("Execution time in nanoseconds for Boruvka's : " + timeElapsed);
 
         return span;
     }
-    
+
     public Cluster findCluster(ArrayList<Cluster> clusters, int vertice) {
         Cluster c = null;
         for (int i = 0; i < clusters.size(); i++) {
@@ -186,7 +73,7 @@ public class Graphs {
         return c;
     }
 
-//    This will combine the two clusters and remove one from the list of clusters
+    //    This will combine the two clusters and remove one from the list of clusters
     public void combineCluster(ArrayList<Cluster> clusters, Cluster c1, Cluster c2) {
         if (c1.getNumVerts() < c2.getNumVerts()) {
 //            all this does is rearrange the c1 and c2 in order that c1 is always greater than or equal to c2
@@ -196,15 +83,15 @@ public class Graphs {
             c1 = temp;
         }
 //        combine c1 and c2 by adding all the verts in c2 to c1
-        for (int i = 0; i < c2.numVerts; i++) {
-            c1.addVert(c2.getVert(i));
+        for (int i = 0; i < c2.getNumVerts(); i++) {
+            c1.addVert(adjList, c2.getVert(i));
         }
 //        removed the c2 from list to decrement the number of clusters
         clusters.remove(c2);
     }
 
     public void printSpan(LinkedList<Edge> span) {
-//        currently, prints edges in order that was added to list. 
+//        currently, prints edges in order that was added to list.
         for (int i = 0; i < span.size(); i++){
             Edge current = span.get(i);
             if (i == span.size() - 1) {
@@ -225,8 +112,9 @@ public class Graphs {
         System.out.println("The total weight of the MST is " + sum);
     }
 
-//    This code is adapted from my Data Structure class
+    //    This code is adapted from my Data Structure class
     public LinkedList<Edge> Kruskal() {
+        long startTime = System.nanoTime();
 //        span stores the edges that are in the tree
         PriorityQueue<Edge> queue = new PriorityQueue<>();
         LinkedList<Edge> span = new LinkedList<>();
@@ -250,6 +138,10 @@ public class Graphs {
                 adjustSubtrees(current, clusters);
             }
         }
+        long endTime = System.nanoTime();
+        long timeElapsed = endTime - startTime;
+        System.out.println("Execution time in nanoseconds for Kruskal's : " + timeElapsed);
+
         return span;
     }
 
@@ -313,9 +205,10 @@ public class Graphs {
 
 
     public static void main(String[] args) {
-//        Add Edges to graph. Vertices are just numbered from 0 to 8. example graph is from
+//        Add Edges to graph. Vertices are just numbered from 0 to 8. example graph (modified) is from
 //        https://www.geeksforgeeks.org/boruvkas-algorithm-greedy-algo-9/ for reference
-        Graphs graph1 = new Graphs(9);
+//        Program assumes that the graph is completely connected.
+        Graphs graph1 = new Graphs(18);
         graph1.addEdge(0,1,4);
         graph1.addEdge(1,2,8);
         graph1.addEdge(2,3,7);
@@ -330,20 +223,34 @@ public class Graphs {
         graph1.addEdge(2,5,4);
         graph1.addEdge(3,5,14);
         graph1.addEdge(6,8,6);
+        graph1.addEdge(9,10,4);
+        graph1.addEdge(10,11,8);
+        graph1.addEdge(11,12,7);
+        graph1.addEdge(12,13,9);
+        graph1.addEdge(13,14,10);
+        graph1.addEdge(14,15,2);
+        graph1.addEdge(15,16,1);
+        graph1.addEdge(16,9,8);
+        graph1.addEdge(16,17,7);
+        graph1.addEdge(10,16,11);
+        graph1.addEdge(11,17,2);
+        graph1.addEdge(11,14,4);
+        graph1.addEdge(12,14,14);
+        graph1.addEdge(15,17,6);
+        graph1.addEdge(0,13,20);
 
-        long start = System.currentTimeMillis();
+        System.out.println("Boruvka's");
         LinkedList<Edge> span = graph1.Brovuka();
-        long end = System.currentTimeMillis();
-        float sec = (end - start); System.out.println(sec + " milliseconds");;
-
         graph1.printSpan(span);
-
         graph1.printWeight(span);
 
-        long startK = System.currentTimeMillis();
+        System.out.println();
+
+        System.out.println("Kruskal's");
         LinkedList<Edge> spanK = graph1.Kruskal();
-        long endK = System.currentTimeMillis();
-        float secK = (endK - startK); System.out.println(secK + " milliseconds");
+        graph1.printSpan(spanK);
+
+        graph1.printWeight(spanK);
 
     }
 }
