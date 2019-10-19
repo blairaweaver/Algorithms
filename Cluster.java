@@ -29,6 +29,23 @@ class Cluster {
         numVerts++;
     }
 
+    public void combineVert(int vert) {
+        verts.add(vert);
+        numVerts++;
+    }
+
+    public boolean hasEdges() {
+        return !outEdges.isEmpty();
+    }
+
+    public void combineEdges(Edge edge) {
+        outEdges.add(edge);
+    }
+
+    public Edge retrieveEdges() {
+        return outEdges.poll();
+    }
+
     private void addEdge(LinkedList<Edge>[] adjList, int vert) {
         for (int i = 0; i < adjList[vert].size(); i++) {
             outEdges.add(adjList[vert].get(i));

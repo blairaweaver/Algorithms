@@ -80,7 +80,10 @@ public class Graphs {
         }
 //        combine c1 and c2 by adding all the verts in c2 to c1
         for (int i = 0; i < c2.getNumVerts(); i++) {
-            c1.addVert(adjList, c2.getVert(i));
+            c1.combineVert(c2.getVert(i));
+        }
+        while (c2.hasEdges()) {
+            c1.combineEdges(c2.retrieveEdges());
         }
 //        removed the c2 from list to decrement the number of clusters
         clusters.remove(c2);
