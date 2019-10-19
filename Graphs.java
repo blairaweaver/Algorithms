@@ -5,22 +5,18 @@ import java.util.PriorityQueue;
 public class Graphs {
 
     private LinkedList<Edge> [] adjList;
-    private int vertices = 0;
-    private int edges = 0;
 
     public Graphs(int vertices) {
         adjList = new LinkedList[vertices];
         for (int i = 0; i < vertices; i++) {
             adjList[i] = new LinkedList<>();
         }
-        this.vertices = vertices;
     }
 
     public void addEdge(int origin, int dest, int weight) {
         Edge e = new Edge(origin, dest, weight);
         adjList[origin].add(e);
         adjList[dest].add(e);
-        edges++;
     }
 
     public LinkedList<Edge> Brovuka() {
@@ -156,12 +152,7 @@ public class Graphs {
             }
         }
 
-        if (originIndex == destIndex && originIndex != -1) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return !(originIndex == destIndex && originIndex != -1);
     }
 
     private void adjustSubtrees(Edge x, ArrayList<ArrayList<Integer>> subTrees) {
